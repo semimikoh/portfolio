@@ -283,3 +283,5 @@ footer{margin-top:35px;padding:26px 0;color:#9c9c9c}footer .wrap{font-size:14px}
 .career-summary-points .career-inline-link{display:inline;color:#777;font-size:14px;font-weight:400;white-space:nowrap;margin-left:6px;text-decoration:none}
 .career-summary-points .career-inline-link:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .career-summary-points .career-inline-link:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+.oss-repository-heading h3{font-size:17px;letter-spacing:-.25px}
