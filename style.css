@@ -285,3 +285,26 @@ footer{margin-top:35px;padding:26px 0;color:#9c9c9c}footer .wrap{font-size:14px}
 .career-summary-points .career-inline-link:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
 .oss-repository-heading h3{font-size:17px;letter-spacing:-.25px}
+
+/* Tighter vertical rhythm, preserving readable text spacing. */
+.portfolio-introduction{padding:32px 0 28px}
+.intro-heading-row{margin-bottom:14px}
+.work-overview{padding-bottom:18px}
+.selected-work-title{margin-top:20px}
+.portfolio-document .career{padding:20px 0 24px}
+.career-page .career-company{margin-bottom:16px}
+.career-project+.career-project{margin-top:24px}
+.career-summary-points{margin-top:7px}
+.career-summary-points li{margin:5px 0}
+.personal-projects{margin-top:24px}
+.home-section{padding:24px 0 28px}
+.home-section-head{margin-bottom:18px}
+.additional-heading{margin-bottom:18px}
+.oss-repository-summary{padding-top:15px;padding-bottom:15px}
+.oss-expand-control{top:15px}
+.oss-repository-content{padding-bottom:18px}
+.section{margin-bottom:26px}
+.projects-heading{padding:30px 0 24px}
+.project-case{padding:24px 0 26px}
+footer{margin-top:26px;padding:20px 0}
+@media(max-width:700px){.portfolio-introduction{padding:26px 0 24px}.portfolio-document .career{padding:18px 0 21px}.oss-repository-summary{padding-top:14px;padding-bottom:14px}.oss-expand-control{top:14px}}
