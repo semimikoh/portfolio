@@ -9,7 +9,9 @@
 - `project-gaia-office.html`: GAIA Office 공통 텍스트 기능
 - `project-cloudbox.html`, `project-civichat.html`: 개인 프로젝트 상세
 
-실무 프로젝트의 그림은 구현 구조를 설명하기 위한 개념도입니다.
+실무 프로젝트는 가상 데이터로 핵심 동작을 재구성한 체험 예시를 먼저 보여줍니다.
+`work-demos.js`와 `work-demos.css`가 그래프, 조건부 폼, 붙여넣기 예시를 담당합니다.
+붙여넣기 결과의 문서 모델과 폼 입력은 브라우저에서만 처리합니다.
 Performance 이미지는 블로그의 비교 기록에서 Summary 부분만 사용합니다.
 
 ## 로컬 실행
