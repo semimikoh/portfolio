@@ -34,6 +34,54 @@
   let lastTrigger = null;
   let pushedEntry = false;
   let priorOverflow = '';
+  let visuals = [];
+  const visualPanels = new Map();
+  const trialCleanups = [];
+  function clearVisuals() {
+    trialCleanups.splice(0).forEach(cleanup => cleanup());
+    visualPanels.clear();
+    $('#pm-visual-panel').replaceChildren();
+  }
+  function makeOfficeTrial() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pm-editor-trial';
+    wrapper.innerHTML = `<div class="pm-editor-tools"><span>Word 에디터 체험</span><div><button type="button">다시 시작</button><a target="_blank" rel="noopener noreferrer">크게 열기 ↗</a></div></div><div class="pm-editor-stage"><iframe title="직접 사용해보는 GAIA Office Word 에디터" allow="clipboard-read; clipboard-write"></iframe><div class="pm-editor-loading" role="status">에디터를 준비하고 있습니다…</div></div>`;
+    const frame = wrapper.querySelector('iframe');
+    const status = wrapper.querySelector('[role="status"]');
+    const base = new URL('https://word-playground-jarvis-6e754e99.vercel.app/');
+    wrapper.querySelector('a').href = base.href;
+    let token;
+    let timeout;
+    function start() {
+      clearTimeout(timeout);
+      token = crypto.randomUUID();
+      status.hidden = false;
+      status.textContent = '에디터를 준비하고 있습니다…';
+      const url = new URL(base);
+      url.searchParams.set('portfolioEmbed', '1');
+      url.searchParams.set('portfolioOrigin', location.origin);
+      url.searchParams.set('portfolioToken', token);
+      frame.src = url.href;
+      timeout = setTimeout(() => {
+        status.textContent = '에디터에 연결하지 못했습니다. 위의 다시 시작을 눌러주세요.';
+      }, 30000);
+    }
+    function ready(event) {
+      if (event.origin !== base.origin || event.source !== frame.contentWindow ||
+          event.data?.type !== 'superoffice-preview-ready' || event.data.token !== token) return;
+      clearTimeout(timeout);
+      status.hidden = true;
+    }
+    window.addEventListener('message', ready);
+    wrapper.querySelector('button').addEventListener('click', start);
+    trialCleanups.push(() => {
+      clearTimeout(timeout);
+      window.removeEventListener('message', ready);
+      frame.src = 'about:blank';
+    });
+    start();
+    return wrapper;
+  }
   const withProject = id => {
     const url = new URL(location.href);
     if (id) url.searchParams.set('project', id);
@@ -41,15 +89,23 @@
     return url;
   };
   function renderVisual(index, focus = false) {
-    const project = byId.get(current);
-    const visual = project.visuals[index];
+    const visual = visuals[index];
     const tabs = [...dialog.querySelectorAll('[role="tab"]')];
     tabs.forEach((tab, i) => {
       tab.setAttribute('aria-selected', String(i === index));
       tab.tabIndex = i === index ? 0 : -1;
     });
-    // Only locally authored project content is rendered here.
-    $('#pm-visual-panel').innerHTML = visual.html;
+    let panel = visualPanels.get(index);
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.className = 'pm-visual-item';
+      // Only locally authored project content is rendered here.
+      if (visual.kind === 'officeTrial') panel.append(makeOfficeTrial());
+      else panel.innerHTML = visual.html;
+      visualPanels.set(index, panel);
+      $('#pm-visual-panel').append(panel);
+    }
+    visualPanels.forEach((item, i) => { item.hidden = i !== index; });
     $('#pm-visual-panel').setAttribute('aria-labelledby', tabs[index].id);
     $('.pm-visual-caption').textContent = visual.caption;
     if (focus) tabs[index].focus();
@@ -57,6 +113,7 @@
   function hide() {
     if (!dialog.open) return;
     dialog.close();
+    clearVisuals();
     document.body.style.overflow = priorOverflow;
     current = null;
     pushedEntry = false;
@@ -75,7 +132,9 @@
     } else {
       pushedEntry = Boolean(history.state?.portfolioModal);
     }
+    clearVisuals();
     current = id;
+    visuals = project.visuals;
     $('#pm-title').textContent = project.title;
     select.value = id;
     $('.pm-role').textContent = project.role;
@@ -91,14 +150,14 @@
       link.textContent = 'Live ↗'; $('.pm-live').append(link);
     }
     const tabs = $('.pm-visual-tabs');
-    tabs.replaceChildren(...project.visuals.map((visual, i) => {
+    tabs.replaceChildren(...visuals.map((visual, i) => {
       const button = document.createElement('button');
       button.type = 'button'; button.id = `pm-tab-${i}`;
       button.setAttribute('role', 'tab'); button.setAttribute('aria-controls', 'pm-visual-panel');
       button.textContent = visual.label;
       button.addEventListener('click', () => renderVisual(i));
       button.addEventListener('keydown', event => {
-        const last = project.visuals.length - 1;
+        const last = visuals.length - 1;
         const destinations = { ArrowRight: i === last ? 0 : i + 1, ArrowLeft: i === 0 ? last : i - 1, Home: 0, End: last };
         if (event.key in destinations) { event.preventDefault(); renderVisual(destinations[event.key], true); }
       });
